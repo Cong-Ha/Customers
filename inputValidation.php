@@ -16,6 +16,8 @@ $patterns = [
     "email" => "/^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/",
     "address" => "/^[\w\s.,'\\-#&;]{1,100}$/",
     "customerId" => "/^\d+$/", //numeric value only
+    "storeId" => "/^(10|[1-9])$/", //numeric value 1-10 only
+
 ];
 
 function validateInputs($fields, $patterns) {
@@ -27,6 +29,9 @@ function validateInputs($fields, $patterns) {
             switch($field) {
                 case 'customerId':
                     $errors[$field] = 'Integers only.';
+                    break;
+                case 'storeId':
+                    $errors[$field] = 'Integers 1-10 only.';
                     break;
                 case 'firstName':
                     $errors[$field] = 'Invalid input for First Name.';

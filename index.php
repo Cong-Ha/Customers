@@ -29,7 +29,7 @@ $errors = [];
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-content-center mb-3">
                 <h2>Customers</h2>
-                <button type="button" class="btn btn-success float-end" data-bs-toggle='modal' data-bs-target='#addModal'>Add Customer</button>
+                <button id="addCustomer" type="button" class="btn btn-success float-end" data-bs-toggle='modal' data-bs-target='#addModal'>Add Customer</button>
             </div>
 
 
@@ -95,7 +95,7 @@ $errors = [];
                                 echo"<td>{$ADDRESS}</td>";
                                 echo"<td>";    
                                     echo"<button type='button' class='btn btn-warning btn-sm customerEdit' data-customer-id='$CUSTOMER_ID'>Edit</button>";
-                                    echo"<button onclick='delete_customer($CUSTOMER_ID, event)' class='btn btn-danger btn-sm'>Del</button>";
+                                    echo"<button onclick='delete_customer($CUSTOMER_ID)' class='btn btn-danger btn-sm'>Del</button>";
                                 echo"</td>";
                             echo"</tr>";
                         }
@@ -111,7 +111,7 @@ $errors = [];
             <div class="modal-content bg-dark">
                 <div class="modal-header">
                     <h5 class="modal-title">Add New Customer</h5>
-                    <button type="button" class="btn-close bg-dark-subtle" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="addDetails">
                 </div>
@@ -125,7 +125,7 @@ $errors = [];
             <div class="modal-content bg-dark">
                 <div class="modal-header">
                     <h5 class="modal-title">Customer Info</h5>
-                    <button type="button" class="btn-close bg-dark-subtle" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="customerDetails">
                 </div>
@@ -148,4 +148,6 @@ $errors = [];
 </html>
 <script src="js/dataTable.js"></script>
 <script src="js/UPDATE_customer.js"></script>
+<script src="js/ADD_customer.js"></script>
+<script src="js/DELETE_customer.js"></script>
 <link href="css/custom_dataTable.css" rel="stylesheet"/>

@@ -1,11 +1,10 @@
 <?php
 include("config/dbConfig.php");
-include("inputValidation.php"); //validation logic
+include("inputValidation.php");
 
 header("Content-Type: application/json");
 
-$customer_id = isset($_POST['customerId']) ? $_POST['customerId'] : die("Customer id not found.");
-$store_id = isset($_POST['storeId']) ? $_POST['storeId'] : die("Store id not found.");
+$store_id = isset($_POST['storeId']) ? $_POST['storeId'] : die("Store ID not found.");
 $firstName = isset($_POST['firstName']) ? $_POST['firstName'] : die("First Name not found.");
 $lastName = isset($_POST['lastName']) ? $_POST['lastName'] : die("Last Name not found.");
 $email = isset($_POST['email']) ? $_POST['email'] : die("Email not found.");
@@ -16,13 +15,12 @@ $fields = [
     "lastName" => $lastName,
     "email" => $email,
     "address" => $address,
-    "customerId" => $customer_id,
     "storeId" => $store_id
-
 ];
 
 // Validate all inputs
 $validationErrors = validateInputs($fields, $patterns);
+
 
 // If there are errors, return them as a JSON response
 if (!empty($validationErrors)) {
@@ -33,23 +31,21 @@ elseif (empty($validationErrors)) {
     try {
         $conn->beginTransaction();
 
-        $query = "UPDATE customers 
+        $query = "INSERT INTO customers 
         SET FIRST_NAME = :firstName, 
         LAST_NAME = :lastName, 
         EMAIL = :email, 
         ADDRESS = :address,
-        STORE_ID = :storeId 
-        WHERE CUSTOMER_ID = :customerId";
+        STORE_ID = :storeId";
         $stmt = $conn->prepare($query);
         $stmt->bindParam(':firstName', $firstName);
         $stmt->bindParam(':lastName', $lastName);
         $stmt->bindParam(':email', $email);
         $stmt->bindParam(':address', $address);
-        $stmt->bindParam(':customerId', $customer_id);
         $stmt->bindParam(':storeId', $store_id);
         $stmt->execute();
         if ($conn->commit()) {
-            echo json_encode(["status" => "success", "message" => "Customer updated successfully."]);
+            echo json_encode(["status" => "success", "message" => "Customer added successfully."]);
         }
     
     } catch (PDOException $e) {
@@ -59,4 +55,5 @@ elseif (empty($validationErrors)) {
 } else {
     echo json_encode(["status" => "error", "message" => "Invalid request."]);
 }
+
 ?>
