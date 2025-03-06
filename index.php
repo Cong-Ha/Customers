@@ -14,8 +14,8 @@ $errors = [];
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet"/>
     <script src="js/datatables.min.js"></script>
     <link href="css/datatables.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet"/>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="css/sweetalert2.css" rel="stylesheet"/>
+    <script src="js/sweetalert2.all.min.js"></script>
 </head>
 <body class="bg-dark text-light">
     <nav class="navbar navbar-light bg-dark border-bottom">
@@ -62,7 +62,7 @@ $errors = [];
                     } catch (PDOException $e) {
                         //show error in apache/logs/error.log
                         error_log($e->getMessage());
-                        
+
                         $errors["DatabaseError"] = "Database error occured. Please try again.";
                         $json_error = json_encode(htmlspecialchars($errors['DatabaseError'], ENT_QUOTES, 'UTF-8'));
 
