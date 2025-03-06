@@ -19,7 +19,7 @@ $(document).ready( function () {
                  </div>
                 <div class="mb-3">
                      <label for="storeId" class="form-label">Store ID</label>
-                     <input type="number" min="1" max="10" class="form-control" id="storeUP" value="${rowData[1]}">
+                     <input type="number" min="1" max="10" class="form-control" id="storeIdUP" value="${rowData[1]}">
                      <span class="text-danger"></span>
                  </div>
                  <div class="mb-3">
@@ -59,7 +59,7 @@ $(document).ready( function () {
     
         var updatedCustomer = {
             customerId: $('#customerUP').val(),
-            storeId: $('#storeUP').val(),
+            storeId: $('#storeIdUP').val(),
             firstName: $('#firstNameUP').val(),
             lastName: $('#lastNameUP').val(),
             email: $('#emailUP').val(),
@@ -79,12 +79,12 @@ $(document).ready( function () {
                     //loop through validation errors and display them
                     Object.keys(response.errors).forEach(function (key) {
                         //target the error span next to the input field
-                        let errorElement = $("#" + key).siblings(".text-danger");
+                        let errorElement = $("#" + key + "UP").siblings(".text-danger");
                         //check if error span exists
                         if (errorElement.length) {
                             errorElement.text(response.errors[key]);
                         } else {
-                            console.warn("Could not find error span for", key);
+                            console.log("Could not find error span for", key);
                         }
                     });
                 } else if (response.status === "success") {
