@@ -15,30 +15,35 @@ $(document).ready( function () {
          var modalContent = `
              <form id="updateCustomerForm">
                  <div class="mb-3">
-                     <input type="hidden" class="form-control" id="customerId" value="${rowData[0]}" readonly="readonly">
+                     <input type="hidden" class="form-control" id="customerUP" value="${rowData[0]}" readonly="readonly">
+                 </div>
+                <div class="mb-3">
+                     <label for="storeId" class="form-label">Store ID</label>
+                     <input type="number" min="1" max="10" class="form-control" id="storeUP" value="${rowData[1]}">
+                     <span class="text-danger"></span>
                  </div>
                  <div class="mb-3">
                      <label for="firstName" class="form-label">First Name</label>
-                     <input type="text" class="form-control" id="firstName" value="${rowData[2]}">
+                     <input type="text" class="form-control" id="firstNameUP" value="${rowData[2]}">
                      <span class="text-danger"></span>
                  </div>
                  <div class="mb-3">
                      <label for="lastName" class="form-label">Last Name</label>
-                     <input type="text" class="form-control" id="lastName" value="${rowData[3]}">
+                     <input type="text" class="form-control" id="lastNameUP" value="${rowData[3]}">
                      <span class="text-danger"></span>
                  </div>
                  <div class="mb-3">
                      <label for="email" class="form-label">Email</label>
-                     <input type="email" class="form-control" id="email" value="${rowData[4]}">
+                     <input type="email" class="form-control" id="emailUP" value="${rowData[4]}">
                      <span class="text-danger"></span>
                  </div>
                  <div class="mb-3">
                      <label for="address" class="form-label">Address</label>
-                     <input type="text" class="form-control" id="address" value="${rowData[5]}">
+                     <input type="text" class="form-control" id="addressUP" value="${rowData[5]}">
                      <span class="text-danger"></span>
                  </div>
                  <div class="d-flex justify-content-center">
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="submit" class="btn btn-success">Save Changes</button>
                  </div>
              </form>
          `;
@@ -53,11 +58,12 @@ $(document).ready( function () {
         e.preventDefault();
     
         var updatedCustomer = {
-            customerId: $('#customerId').val(),
-            firstName: $('#firstName').val(),
-            lastName: $('#lastName').val(),
-            email: $('#email').val(),
-            address: $('#address').val(),
+            customerId: $('#customerUP').val(),
+            storeId: $('#storeUP').val(),
+            firstName: $('#firstNameUP').val(),
+            lastName: $('#lastNameUP').val(),
+            email: $('#emailUP').val(),
+            address: $('#addressUP').val(),
         };
     
         $.ajax({
