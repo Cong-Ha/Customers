@@ -1,5 +1,5 @@
 th {
-    color: gold;
+    color: rgb(4, 251, 29);
 }
 /* Pagination button styles */
 #customerTable_paginate a {
@@ -8,5 +8,5 @@ th {
 }
 
 .page-item.active .page-link {
-    border-color: gold !important;
+    border-color: rgb(4, 251, 29) !important;
 }
