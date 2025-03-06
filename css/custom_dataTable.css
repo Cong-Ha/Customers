@@ -1,0 +1,12 @@
+th {
+    color: gold;
+}
+/* Pagination button styles */
+#customerTable_paginate a {
+    background-color: black !important;
+    color: white !important;
+}
+
+.page-item.active .page-link {
+    border-color: gold !important;
+}
