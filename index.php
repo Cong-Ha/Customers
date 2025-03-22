@@ -1,19 +1,87 @@
 <?php
-$msg="";
-$errors = [];
+session_start();
+require  "config/dbConfig.php";
+if ($_SERVER['REQUEST_METHOD'] == "POST")
+{
+    if(isset($_POST['form_id'])) {
+        
+        $form_id = $_POST['form_id'];
+
+        if($form_id == 'login') 
+        {
+            $username = isset($_POST['uname']) ? htmlspecialchars($_POST['uname']) : "";
+            $password = isset($_POST['pass']) ? htmlspecialchars($_POST['pass']) : "";
+
+            $query = "SELECT * FROM users WHERE user_name = :user_name";
+            $stmt = $conn->prepare($query);
+            $stmt->bindValue(':user_name', $username, PDO::PARAM_STR);
+            $stmt ->execute();
+            $user = $stmt->fetch();
+
+            if($user && password_verify($password, $user['password']))
+            {
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_name'] = $user['user_name'];
+                $_SESSION['role'] = $user['role'];
+
+                header('Location: table.php');
+                exit();
+            }
+            else 
+            {
+                echo "Invalid credentials!";
+            }
+        }
+        if($form_id == 'register') {
+
+            //validate and sanitize input fields
+            $full_name = isset($_POST['FullName']) ? trim(htmlspecialchars(($_POST['FullName']))) : '';
+            $user_name = isset($_POST['UserName']) ? trim(htmlspecialchars(($_POST['UserName']))) : '';
+            $email = isset($_POST['Email']) ? trim(htmlspecialchars(($_POST['Email']))) : '';
+            $password = isset($_POST['Password']) ? trim(htmlspecialchars(($_POST['Password']))) : '';
+            $role = "user";
+
+            //hash password
+            $options = ['cost' => 13]; 
+            $hashed_pass = password_hash($password, PASSWORD_BCRYPT, $options);
+
+            try
+            {
+                require  "config/dbConfig.php";
+
+                $query = "INSERT INTO 
+                    users(full_name, user_name, email, password, role) 
+                    VALUES(:full_name, :user_name, :email, :password, :role)";
+                $stmt = $conn -> prepare($query);
+                $stmt->bindValue(':full_name', $full_name, PDO::PARAM_STR);
+                $stmt->bindValue(':user_name', $user_name, PDO::PARAM_STR);
+                $stmt->bindValue(':email', $email, PDO::PARAM_STR);
+                $stmt->bindValue(':password', $hashed_pass, PDO::PARAM_STR);
+                $stmt->bindValue(':role', $role, PDO::PARAM_STR);
+
+                if($stmt->execute()) {
+                    header('Location: index.php?registered=1');
+                    exit();
+                }
+            }
+            catch(PDOException $e)
+            {
+                echo "Error:" . $e -> getMessage();
+            }
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
+    <title>User Login & Registration</title>
     <script src="js/jquery.min.js"></script>
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet"/>
     <script src="js/bootstrap/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet"/>
-    <script src="js/datatables.min.js"></script>
-    <link href="css/datatables.min.css" rel="stylesheet"/>
     <link href="css/sweetalert2.css" rel="stylesheet"/>
     <script src="js/sweetalert2.all.min.js"></script>
 </head>
@@ -25,129 +93,79 @@ $errors = [];
             </a>
         </div>
     </nav>
-    <div class="container mt-3">
-        <div class="container-fluid">
-            <div class="d-flex justify-content-between align-content-center mb-3">
-                <h2>Customers</h2>
-                <button id="addCustomer" type="button" class="btn btn-success float-end" data-bs-toggle='modal' data-bs-target='#addModal'>Add Customer</button>
-            </div>
-
-
-            <table id="customerTable" class="table table-dark table-hover table-bordered w-100">
-                <thead>
-                    <tr>
-                        <th>Customer Id</th>
-                        <th>Store Id</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th>Address</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <?php
-                    try {
-                        include("config/dbConfig.php");
-                        $query = 
-                            "SELECT 
-                            CUSTOMER_ID,
-                            STORE_ID,
-                            FIRST_NAME,
-                            LAST_NAME,
-                            EMAIL,
-                            ADDRESS 
-                            FROM customers";
-                        $stmt = $conn->prepare($query);
-                        $stmt->execute();
-                    } catch (PDOException $e) {
-                        //show error in apache/logs/error.log
-                        error_log($e->getMessage());
-
-                        $errors["DatabaseError"] = "Database error occured. Please try again.";
-                        $json_error = json_encode(htmlspecialchars($errors['DatabaseError'], ENT_QUOTES, 'UTF-8'));
-
-                        echo <<<EOD
-                        <script type="text/javascript">
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Database Error',
-                                text: {$json_error},
-                                background: '#343a40',
-                                color: '#ffffff',
-                                confirmButtonColor: '#dc3545'
-                            });
-                        </script>
-                        EOD;
-                    }
-                ?>
-                <tbody>
-                    <?php
-                        while ($row = $stmt->fetch(PDO::FETCH_ASSOC))
-                        {
-                            extract($row);
-
-                            echo"<tr>";
-                                echo"<td>{$CUSTOMER_ID}</td>";
-                                echo"<td>{$STORE_ID}</td>";
-                                echo"<td>{$FIRST_NAME}</td>";
-                                echo"<td>{$LAST_NAME}</td>";
-                                echo"<td>{$EMAIL}</td>";
-                                echo"<td>{$ADDRESS}</td>";
-                                echo"<td>";    
-                                    echo"<button type='button' class='btn btn-warning btn-sm customerEdit' data-customer-id='$CUSTOMER_ID'>Edit</button>";
-                                    echo"<button onclick='delete_customer($CUSTOMER_ID)' class='btn btn-danger btn-sm'>Del</button>";
-                                echo"</td>";
-                            echo"</tr>";
-                        }
-                    ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Add Customer -->
-    <div class="modal fade" id="addModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content bg-dark">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Customer</h5>
-                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal"></button>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card bg-dark text-light border p-4">
+                    <ul class="nav nav-tabs" id="authTabs">
+                        <li class="nav-item" >
+                            <a class="nav-link active" data-bs-toggle="tab" href="#login">Login</a>
+                        </li>
+                        <li class="nav-item" >
+                            <a class="nav-link" data-bs-toggle="tab" href="#register">Register</a>
+                        </li>
+                    </ul>
+                    <!--Begin Login Form  -->
+                    <div class="tab-content mt-3">
+                        <div class="tab-pane fade show active" id="login">
+                            <form method="POST">
+                                <input type="hidden" name="form_id" value="login">
+                                <div class="mb-3">
+                                    <label class="form-label">User Name</label>
+                                    <input type="text" class="form-control" name="uname">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" class="form-control" name="pass">
+                                </div>
+                                <button type="submit" class="btn btn-success w-100">Login</button>
+                            </form>
+                        </div>
+                        <!-- End Login Form -->
+                        <!-- Registration -->
+                        <div class="tab-pane fade" id="register">
+                            <form method="POST">
+                                <input type="hidden" name="form_id" value="register">
+                                <div class="mb-3">
+                                    <label class="form-label">Full Name:</label>
+                                    <input type="text" class="form-control" name="FullName">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">User Name:</label>
+                                    <input type="text" class="form-control" name="UserName">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email:</label>
+                                    <input type="text" class="form-control" name="Email">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Password:</label>
+                                    <input type="text" class="form-control" name="Password">
+                                </div>
+                                <button type="submit" class="btn btn-success w-100">Register</button>
+                            </form>
+                        </div>
+                        <!-- Registration -->
+                    </div>
                 </div>
-                <div class="modal-body" id="addDetails">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Info Modal -->
-    <div class="modal fade" id="infoModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content bg-dark">
-                <div class="modal-header">
-                    <h5 class="modal-title">Customer Info</h5>
-                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="customerDetails">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Update Modal -->
-    <div class="modal fade" id="updateModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content bg-dark">
-                <div class="modal-header justify-content-center">
-                    <h4 class="modal-title">Update Customer Info</h4>
-                </div>
-                <div class="modal-body" id="customerEdit"></div>
             </div>
         </div>
     </div>
 </body>
 </html>
-<script src="js/dataTable.js"></script>
-<script src="js/UPDATE_customer.js"></script>
-<script src="js/ADD_customer.js"></script>
-<script src="js/DELETE_customer.js"></script>
-<link href="css/custom_dataTable.css" rel="stylesheet"/>
+<script>
+    $(document).ready(function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('registered') === '1') {
+            Swal.fire({
+                title: 'Success!',
+                text: 'Registered successfully! Try logging in!',
+                icon: 'success',
+                background: "#343a40",
+                color: "#ffffff",
+                confirmButtonColor: "#28a745",
+            });
+            $('#authTabs a[href="#login"]').tab('show');
+        }
+    });
+</script>
